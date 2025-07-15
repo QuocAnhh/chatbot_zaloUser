@@ -1,0 +1,14 @@
+__pycache__/
+venv/
+
+*.env
+*.env.*
+
+# IDE/editor folders
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.log
+*.sqlite3
+*.db
