@@ -12,3 +12,7 @@ venv/
 *.log
 *.sqlite3
 *.db
+credentials.json
+**/__pycache__/
+vector_store/
+
