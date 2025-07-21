@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Form, Request, BackgroundTasks
 from app.services.openai_client import generate_reply
 from app.services.smax_client import send_to_smax
+from app.services.google_sheets_service import write_log_to_sheet
 import logging
+from datetime import datetime
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -27,11 +29,17 @@ async def debug_smax_webhook(request: Request):
 
 @app.post("/webhook/smax")
 async def handle_smax_webhook(
+    background_tasks: BackgroundTasks,
     message: str = Form(default=""),
     pid: str = Form(default=""),
     page_pid: str = Form(default="")
 ):
     logger.info(f"Received webhook: message='{message}', pid='{pid}', page_pid='{page_pid}'")
+    
+    # Thêm tác vụ ghi log vào background
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    log_data = [timestamp, pid, message]
+    background_tasks.add_task(write_log_to_sheet, log_data)
     
     # Kiểm tra nếu message trống
     if not message.strip():

@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 async def send_to_smax(sender_id: str, message: str, page_pid: str = None) -> None:
     # headers smax
-    headers = {"Authorization`": f"Bearer {settings.smax_api_token}"}
+    headers = {"Authorization": f"Bearer {settings.smax_api_token}"}
     
     # payload smax
     payload = {
