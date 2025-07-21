@@ -5,23 +5,31 @@ import logging
 logger = logging.getLogger(__name__)
 
 async def send_to_smax(sender_id: str, message: str, page_pid: str = None) -> None:
-    headers = {"Authorization": f"Bearer {settings.smax_api_token}"}
+    # headers smax
+    headers = {"Authorization`": f"Bearer {settings.smax_api_token}"}
     
-    # Payload đúng theo SMAX API spec
+    # payload smax
     payload = {
-        "last_content_by_user": message,  # Đúng field name
-        "pid": sender_id,
-        "page_pid": page_pid
+        "customer": {
+            "pid": sender_id,
+            "page_pid": page_pid
+        },
+        "attrs": [
+            {
+                "name": "message",
+                "value": message
+            }
+        ]
     }
     
     logger.info(f"Sending to SMAX - URL: {settings.smax_api_endpoint}")
-    logger.info(f"Payload: {payload}")
+    logger.info(f"Payload (JSON): {payload}")
     
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 settings.smax_api_endpoint, 
-                data=payload,
+                json=payload,
                 headers=headers, 
                 timeout=10
             )
