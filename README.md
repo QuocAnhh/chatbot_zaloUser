@@ -1,27 +1,28 @@
 # Chatbot Zalo với RAG
 
-Một chatbot Zalo được tích hợp với Smax, sử dụng kỹ thuật Retrieval-Augmented Generation (RAG) để trả lời các câu hỏi của người dùng dựa trên một kho tài liệu được cung cấp.
+Dự án này là một chatbot Zalo được tích hợp với Smax, sử dụng kỹ thuật Retrieval-Augmented Generation (RAG) để trả lời các câu hỏi của người dùng dựa trên một kho tài liệu được cung cấp.
 
 ## Tính năng chính
 
--   **Webhook Tích hợp Smax**: Nhận và xử lý tin nhắn từ người dùng Zalo thông qua webhook.
+-   **Tích hợp Smax & Zalo**: Nhận và xử lý tin nhắn từ người dùng Zalo thông qua một webhook duy nhất.
 -   **Tạo sinh câu trả lời (RAG)**: Sử dụng mô hình ngôn ngữ kết hợp với cơ sở dữ liệu vector để tạo ra câu trả lời chính xác từ tài liệu nội bộ.
+-   **Ghi log tự động**: Tự động ghi lại toàn bộ lịch sử tin nhắn vào Google Sheet dưới dạng tác vụ nền (background task) mà không làm ảnh hưởng đến tốc độ phản hồi của chatbot.
 -   **Nạp dữ liệu động**: Cung cấp kịch bản để dễ dàng nạp và xử lý các tài liệu (định dạng `.md`, `.pdf`) vào vector store.
--   **Ghi log tin nhắn**: Tùy chọn webhook để ghi lại lịch sử tin nhắn vào Google Sheet.
 
 ## Yêu cầu
 
 -   Python 3.8+
--   Tài khoản Smax để kết nối với Zalo OA.
--   API của OpenAI hoặc nhà cung cấp mô hình ngôn ngữ khác
--   Service Account của Google Cloud với quyền truy cập Google Sheets API
+-   Tài khoản Smax và Zalo đã được kết nối.
+-   API Token từ Smax.
+-   API OpenAI hoặc nhà cung cấp mô hình ngôn ngữ khác.
+-   Service Account của Google Cloud với quyền truy cập Google Sheets API và file `credentials.json`.
 
 ## Cài đặt
 
 1.  **Clone repository:**
     ```bash
-    git clone https://github.com/QuocAnhh/chatbot_zaloUser.git
-    cd chatbot_zaloUser
+    git clone <your-repository-url>
+    cd chatbot_zalo
     ```
 
 2.  **Tạo và kích hoạt môi trường ảo:**
@@ -37,17 +38,20 @@ Một chatbot Zalo được tích hợp với Smax, sử dụng kỹ thuật Ret
 
 4.  **Cấu hình biến môi trường:**
 
-    Tạo một file `.env` trong thư mục gốc của dự án và thêm các biến sau:
+    Tạo một file `.env` trong thư mục gốc của dự án và điền các giá trị tương ứng:
 
     ```env
-    # Bắt buộc: API key cho mô hình ngôn ngữ
+    # API key cho mô hình ngôn ngữ (ví dụ: OpenAI, Gemini)
     OPENAI_API_KEY="sk-..."
 
-    # Tùy chọn: ID của Google Sheet để ghi log
+    # API Token và Endpoint của Smax để gửi tin nhắn trả lời
+    SMAX_API_TOKEN="your-smax-api-token-here"
+    SMAX_API_ENDPOINT="https://smax.live/api/v2.1/me/live-chat/send-message"
+
+    # ID của Google Sheet để ghi log
     SPREADSHEET_ID="your-google-sheet-id"
     ```
-
-    Nếu bạn sử dụng webhook để ghi log ra Google Sheet, hãy đảm bảo bạn có file `credentials.json` của Service Account trong thư mục dự án.
+    **Lưu ý:** Đảm bảo bạn đã đặt file `credentials.json` của Google Service Account vào thư mục gốc của dự án.
 
 ## Cách nạp dữ liệu (Ingest Data)
 
@@ -63,27 +67,15 @@ Một chatbot Zalo được tích hợp với Smax, sử dụng kỹ thuật Ret
 
 ## Cách chạy dự án
 
-### 1. Chạy Chatbot chính
-
-Ứng dụng chính xử lý logic của chatbot.
+Khởi chạy ứng dụng duy nhất bằng lệnh:
 ```bash
 python run.py
 ```
-Ứng dụng sẽ chạy tại `http://localhost:8080`.
+Ứng dụng sẽ chạy tại `http://localhost:8080` và xử lý đồng thời cả logic chatbot và việc ghi log.
 
 Bạn cần sử dụng một công cụ như `ngrok` để tạo một URL công khai và cấu hình nó làm webhook trong Smax.
 
--   **Endpoint chính**: `POST /webhook/smax`
-
-### 2. (Tùy chọn) Chạy Webhook ghi log
-
-Nếu bạn muốn ghi lại tất cả tin nhắn của người dùng vào Google Sheet:
-```bash
-python webhook_app.py
-```
-Ứng dụng này sẽ chạy trên một port khác (mặc định là 8080, bạn có thể cần chỉnh sửa để tránh xung đột nếu chạy cùng lúc).
-
--   **Endpoint ghi log**: `POST /webhook`
+-   **Endpoint duy nhất**: `POST /webhook/smax`
 
 ## Cấu trúc dự án
 
@@ -92,12 +84,12 @@ chatbot_zalo/
 ├── app/
 │   ├── data/                 # Chứa tài liệu nguồn (input)
 │   ├── vector_store/         # Chứa cơ sở dữ liệu vector (output)
-│   ├── services/             # Logic nghiệp vụ (RAG, Smax, OpenAI)
-│   ├── main.py               # Ứng dụng FastAPI chính của chatbot
+│   ├── services/             # Logic nghiệp vụ (RAG, Smax, OpenAI, Google Sheets)
+│   ├── main.py               # Ứng dụng FastAPI chính (webhook, chatbot, logging)
 │   └── config.py             # Cấu hình
 ├── ingest.py                 # Kịch bản để nạp dữ liệu
-├── run.py                    # Kịch bản để khởi chạy ứng dụng chính
-├── webhook_app.py            # Ứng dụng phụ để ghi log ra Google Sheet
+├── run.py                    # Kịch bản để khởi chạy ứng dụng
 ├── requirements.txt          # Danh sách thư viện
+├── .env                      # File chứa các biến môi trường (cần tự tạo)
 └── README.md                 # Tài liệu hướng dẫn
 </pre> 
