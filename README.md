@@ -11,7 +11,7 @@ Dự án này là một chatbot Zalo được tích hợp với Smax, sử dụn
 
 ## Yêu cầu
 
--   Python 3.8+
+-   Python 3.11+
 -   Tài khoản Smax và Zalo đã được kết nối.
 -   API Token từ Smax.
 -   API OpenAI hoặc nhà cung cấp mô hình ngôn ngữ khác.
@@ -21,8 +21,8 @@ Dự án này là một chatbot Zalo được tích hợp với Smax, sử dụn
 
 1.  **Clone repository:**
     ```bash
-    git clone <your-repository-url>
-    cd chatbot_zalo
+    git clone https://github.com/QuocAnhh/chatbot_zaloUser.git
+    cd chatbot_zaloUser
     ```
 
 2.  **Tạo và kích hoạt môi trường ảo:**
@@ -82,14 +82,14 @@ Bạn cần sử dụng một công cụ như `ngrok` để tạo một URL côn
 <pre>
 chatbot_zalo/
 ├── app/
-│   ├── data/                 # Chứa tài liệu nguồn (input)
-│   ├── vector_store/         # Chứa cơ sở dữ liệu vector (output)
-│   ├── services/             # Logic nghiệp vụ (RAG, Smax, OpenAI, Google Sheets)
-│   ├── main.py               # Ứng dụng FastAPI chính (webhook, chatbot, logging)
+│   ├── data/                 # Chứa docs nguồn (input)
+│   ├── vector_store/         # Chứa db vector (output)
+│   ├── services/             # logic nghiệp vụ (RAG, Smax, OpenAI, Google Sheets)
+│   ├── main.py               # FastAPI (webhook, chatbot, logging)
 │   └── config.py             # Cấu hình
-├── ingest.py                 # Kịch bản để nạp dữ liệu
-├── run.py                    # Kịch bản để khởi chạy ứng dụng
-├── requirements.txt          # Danh sách thư viện
-├── .env                      # File chứa các biến môi trường (cần tự tạo)
-└── README.md                 # Tài liệu hướng dẫn
+├── ingest.py                 # nạp dữ liệu
+├── run.py                    # chạy ứng dụng
+├── requirements.txt          # list thư viện
+├── .env                      # chứa các biến môi trường (cần tự tạo)
+└── README.md                 # instruction
 </pre> 
