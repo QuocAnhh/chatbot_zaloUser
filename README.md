@@ -45,8 +45,8 @@ Dự án này là một chatbot Zalo được tích hợp với Smax, sử dụn
     OPENAI_API_KEY="sk-..."
 
     # API Token và Endpoint của Smax để gửi tin nhắn trả lời
-    SMAX_API_TOKEN="your-smax-api-token-here"
-    SMAX_API_ENDPOINT="https://smax.live/api/v2.1/me/live-chat/send-message"
+    SMAX_API_TOKEN="smax-api-token"
+    SMAX_API_ENDPOINT="https://api.smax.ai/public/bizs/xxxxxx/triggers/xxx"
 
     # ID của Google Sheet để ghi log
     SPREADSHEET_ID="your-google-sheet-id"
@@ -67,15 +67,52 @@ Dự án này là một chatbot Zalo được tích hợp với Smax, sử dụn
 
 ## Cách chạy dự án
 
-Khởi chạy ứng dụng duy nhất bằng lệnh:
+Để chạy ứng dụng cho mục đích phát triển (với tính năng tự động tải lại khi có thay đổi), sử dụng lệnh sau:
+
 ```bash
-python run.py
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-Ứng dụng sẽ chạy tại `http://localhost:8080` và xử lý đồng thời cả logic chatbot và việc ghi log.
+Ứng dụng sẽ chạy tại `http://localhost:8000`.
 
-Bạn cần sử dụng một công cụ như `ngrok` để tạo một URL công khai và cấu hình nó làm webhook trong Smax.
+## API Endpoints
 
--   **Endpoint duy nhất**: `POST /webhook/smax`
+### 1. Webhook cho Chatbot Smax
+
+-   **Endpoint**: `/webhook/smax`
+-   **Method**: `POST`
+-   **Mô tả**: Nhận tin nhắn từ người dùng Zalo qua Smax, tạo câu trả lời bằng RAG và gửi lại. Đồng thời, ghi log tin nhắn vào Google Sheet.
+-   **Body**: `application/json` với các trường `message`, `pid`, `page_pid`.
+
+### 2. Ghi nhận thông tin lên sheet chotDon
+
+-   **Endpoint**: `/booking/log`
+-   **Method**: `POST`
+-   **Mô tả**: Nhận thông tin chi tiết về một đơn đặt hàng và ghi vào một Google Sheet chuyên dụng. Endpoint này tự động thêm timestamp vào thời điểm nhận được yêu cầu.
+-   **Body**: `application/json`
+
+    **Ví dụ JSON Body:**
+    ```json
+    {
+      "id_khach": "01111",
+      "ten": "Quốc Anh",
+      "sdt": "099999282",
+      "dia_chi_don": "Ba sáu",
+      "dia_chi_tra": "Hai chín",
+      "ngay_di": "29/07/2025",
+      "gio_xe_chay": "16:00",
+      "so_luong_nguoi": 5,
+      "tong_tien": 1500000
+    }
+    ```
+
+    **Ví dụ Response thành công:**
+    ```json
+    {
+        "status": "success",
+        "message": "Đã nhận thông tin booking và đang xử lý."
+    }
+    ```
+
 
 ## Cấu trúc dự án
 
